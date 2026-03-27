@@ -17,8 +17,12 @@ class TireClassifier {
   /// Load the TFLite model and labels
   Future<void> loadModel() async {
     try {
-      // Load model from assets
-      _interpreter = await Interpreter.fromAsset('assets/model.tflite');
+      // Load model bytes from asset bundle
+      final modelData = await rootBundle.load('assets/model.tflite');
+      final buffer = modelData.buffer.asUint8List();
+      
+      // Create interpreter from buffer
+      _interpreter = Interpreter.fromBuffer(buffer);
       
       // Print model info for debugging
       final inputTensor = _interpreter.getInputTensor(0);
@@ -40,8 +44,10 @@ class TireClassifier {
       print('Labels loaded: $_labels');
 
       _isLoaded = true;
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Error loading model: $e');
+      print('Error type: ${e.runtimeType}');
+      print('Stack trace: $stackTrace');
       rethrow;
     }
   }
